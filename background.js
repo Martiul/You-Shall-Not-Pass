@@ -18,7 +18,6 @@ chrome.runtime.onInstalled.addListener(function() {
         pageUrl: {hostContains: sites[i]},
       }))
     }
-    console.log("Conditions: ",conditions)
     chrome.declarativeContent.onPageChanged.addRules([{
       conditions: conditions,
       actions: [new chrome.declarativeContent.ShowPageAction()]
@@ -28,7 +27,7 @@ chrome.runtime.onInstalled.addListener(function() {
 
 chrome.runtime.onMessage.addListener(
     function(req, sender, sendResponse) {
-        weekAgo = (new Date().getTime() - 1000*60*60*24*7)
+        let weekAgo = (new Date().getTime() - 1000*60*60*24*7)
         if ("message" in req) {
             console.log(req.message)
         }
