@@ -5,6 +5,7 @@ handlers = {
     "www.nytimes.com": nytimes,
     "www.washingtonpost.com": washingtonpost,
     "www.thestar.com": thestar,
+    "www.businessinsider.com": businessinsider,
 }
 if (!location.hostname in handlers) {
     console.log(`[WARNING] Could not find handler for ${location.hostname}`)
@@ -12,14 +13,16 @@ if (!location.hostname in handlers) {
 
 console.log(`[RUNNING] ${location.hostname}...`)
 waitForComplete = setInterval(() => {
-    if (document.readyState != "complete") return
-    handlers[location.hostname]()
+    if (document.readyState != "complete" || !handlers[location.hostname]()) return
     clearInterval(waitForComplete)
     console.log(`[DONE] ${location.hostname}`)
-}, 1000)
+    chrome.runtime.sendMessage({message: `Handled ${location.hostname}`})
+}, 2000)
 
 function bloomberg() {
     chrome.runtime.sendMessage({source: location.hostname})
+    return true
+    // Alternative:
     // document.body.style.overflow="scroll"
     // document.querySelector("#graphics-paywall-overlay").style.display="none"
 }
@@ -29,16 +32,23 @@ function nytimes() {
     document.querySelector(".css-mcm29f").style.overflow="scroll";
     document.querySelector(".css-1bd8bfl").style.background="none";
     document.querySelector("#gateway-content").style.display="none";
+    return true
 }
 
 function washingtonpost() {
-    document.getElementsByTagName("html")[0].style.overflow="visible";
-    document.getElementsByTagName("body")[0].style.position="";
-    document.getElementsByTagName("body")[0].style.overflow="visible";
+    body = document.getElementsByTagName("body")[0]
+    if (body.style.overflow == "visible") return false
+    
     document.querySelector(".paywall-overlay").style.display="none"
+    document.getElementsByTagName("html")[0].style.overflow="visible";
+    body.style.position="";
+    body.style.overflow="visible";
+    return true
 }
 
 function thestar() {
+    if (!document.querySelector(".basic-paywall-new")) return false
+    
     document.querySelector(".basic-paywall-new").remove()
     content = document.querySelector(".c-article-body__content").children
     for (i = 0; i < content.length; i++) {
@@ -46,5 +56,13 @@ function thestar() {
             content[i].style.display = ""
         }
     }
+    return true
+}
 
+function businessinsider() {
+    document.querySelector(".tp-backdrop").style.display="none"
+    document.querySelector(".tp-modal").style.display="none"
+    document.getElementById("piano-inline-content-wrapper").style.display=""
+    document.querySelector(".tp-modal-open").setAttribute('style', 'overflow: scroll !important')
+    return true
 }

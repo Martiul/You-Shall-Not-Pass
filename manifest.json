@@ -17,7 +17,8 @@
                 "https://*.bloomberg.com/*",
                 "https://*.washingtonpost.com/*", 
                 "https://*.nytimes.com/*",
-                "https://*.thestar.com/*"
+                "https://*.thestar.com/*",
+                "https://*.businessinsider.com/*"
             ],
             "run_at": "document_end",
             "js": ["content.js"]
