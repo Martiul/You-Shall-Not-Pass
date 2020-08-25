@@ -1,3 +1,30 @@
+import { Sites } from './sites.js'
+
+chrome.runtime.onInstalled.addListener(function() {
+  let enableOnSite = {}
+  let sites = Sites()
+  for (let i = 0; i < sites.length; i++) {
+    enableOnSite[sites[i]] = true
+  }
+  chrome.storage.sync.set({enableOnSite: enableOnSite}, function() {
+    console.log('Stored: ', enableOnSite);
+  });
+
+  // Show button on supported sites
+  chrome.declarativeContent.onPageChanged.removeRules(undefined, function() {
+    let conditions = []
+    for (let i = 0; i < sites.length; i++) {
+      conditions.push(new chrome.declarativeContent.PageStateMatcher({
+        pageUrl: {hostContains: sites[i]},
+      }))
+    }
+    console.log("Conditions: ",conditions)
+    chrome.declarativeContent.onPageChanged.addRules([{
+      conditions: conditions,
+      actions: [new chrome.declarativeContent.ShowPageAction()]
+    }]);
+  });
+});
 
 chrome.runtime.onMessage.addListener(
     function(req, sender, sendResponse) {
@@ -6,10 +33,10 @@ chrome.runtime.onMessage.addListener(
             console.log(req.message)
         }
         
-        if (req.source == "www.bloomberg.com") {
+        if ("source" in req) {
             chrome.browsingData.remove({
                 "since": weekAgo,
-                "origins": ["https://" + req.source], // [req.source]
+                "origins": ["https://www." + req.source], // [req.source]
             }, {
                 "cacheStorage": true,
                 "cookies": true,
@@ -19,7 +46,8 @@ chrome.runtime.onMessage.addListener(
                 "pluginData": true,
                 "serviceWorkers": true,
                 "webSQL": true
-            }, () => {
+            }, function() {
+                sendResponse({message: `Cleared browsing data for ${req.source}`})
                 console.log(`Cleared browsing data for ${req.source}`)
             })
         }

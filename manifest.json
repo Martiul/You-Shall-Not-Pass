@@ -1,7 +1,7 @@
 {    
     "name": "You Shall (Not) Pass",
     "version": "1.0",
-    "description": "Bypasses paywalls on some sites!",
+    "description": "Bypasses paywalls on some sites",
     "permissions": [
         "tabs",
         "browsingData",
@@ -9,8 +9,7 @@
         "declarativeContent",
         "storage"
     ],
-    "options_page": "options.html",
-    
+
     "content_scripts": [
         {
             "matches": [
@@ -18,7 +17,8 @@
                 "https://*.washingtonpost.com/*", 
                 "https://*.nytimes.com/*",
                 "https://*.thestar.com/*",
-                "https://*.businessinsider.com/*"
+                "https://*.businessinsider.com/*",
+                "https://*.wired.com/*"
             ],
             "run_at": "document_end",
             "js": ["content.js"]
@@ -26,8 +26,7 @@
     ],
 
     "background": {
-        "scripts": ["background.js"],
-        "persistent": false
+        "page": "background.html"
     },
     
     "page_action": {

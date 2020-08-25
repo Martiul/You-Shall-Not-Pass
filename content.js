@@ -1,30 +1,48 @@
-// Match hostname with corresponding handler
-
+// Matchs host with corresponding handler
 handlers = {
-    "www.bloomberg.com": bloomberg,
+    "www.bloomberg.com": clearSiteData,
     "www.nytimes.com": nytimes,
     "www.washingtonpost.com": washingtonpost,
     "www.thestar.com": thestar,
     "www.businessinsider.com": businessinsider,
+    "www.wired.com": clearSiteData
 }
+
 if (!location.hostname in handlers) {
-    console.log(`[WARNING] Could not find handler for ${location.hostname}`)
+    console.log(`[YSNP] [WARNING] Could not find handler for ${location.hostname}`)
 }
 
-console.log(`[RUNNING] ${location.hostname}...`)
-waitForComplete = setInterval(() => {
-    if (document.readyState != "complete" || !handlers[location.hostname]()) return
-    clearInterval(waitForComplete)
-    console.log(`[DONE] ${location.hostname}`)
-    chrome.runtime.sendMessage({message: `Handled ${location.hostname}`})
-}, 2000)
+console.log(`[YSNP] [RUNNING] ${location.hostname}...`)
 
-function bloomberg() {
+chrome.storage.sync.get('enableOnSite', function(data) {
+    let enableOnSite = data.enableOnSite
+    if (!enableOnSite) {
+        console.log("[YSNP] [WARNING]: Could not find 'enableOnSite' in storage data")
+        return
+    }
+    if (!enableOnSite[location.hostname]) {
+        console.log("[YSNP] Disabled for ", location.hostname)
+        return
+    }
+    
+    // Script enabled for this site
+    waitForComplete = setInterval(() => {
+        if (document.readyState != "complete" || !handlers[location.hostname]()) return
+        clearInterval(waitForComplete)
+        console.log(`[YSNP] [DONE] ${location.hostname}`)
+        chrome.runtime.sendMessage({message: `Handled ${location.hostname}`})
+    }, 2000)
+
+})
+
+//
+// Handlers
+//
+function clearSiteData() {
+    // Content scripts do not have access to browsing data
+    // Call background script instead
     chrome.runtime.sendMessage({source: location.hostname})
     return true
-    // Alternative:
-    // document.body.style.overflow="scroll"
-    // document.querySelector("#graphics-paywall-overlay").style.display="none"
 }
 
 function nytimes() {
