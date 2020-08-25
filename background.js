@@ -35,7 +35,7 @@ chrome.runtime.onMessage.addListener(
         if ("source" in req) {
             chrome.browsingData.remove({
                 "since": weekAgo,
-                "origins": ["https://www." + req.source], // [req.source]
+                "origins": ["https://" + req.source], // [req.source]
             }, {
                 "cacheStorage": true,
                 "cookies": true,
