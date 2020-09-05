@@ -1,4 +1,4 @@
-# You-Shall-Not-Pass
+# You Shall (Not) Pass
 A Chrome extension to bypass paywalls on news sites.
 
 ## Installation
